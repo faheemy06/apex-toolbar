@@ -1,48 +1,39 @@
 body {
-  background: transparent;
+  background: #f0f0f0;
   margin: 0;
-  padding: 12px;
+  padding: 10px;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   user-select: none;
   overflow: hidden;
 }
 
-html {
-  background: transparent;
-}
-
-/* Stretches the dark background to perfectly fill the task pane space */
 #toolbar {
-  display: flex;
+  display: inline-flex;
   flex-direction: column;
   align-items: center;
   background: #1e222d;
-  border-radius: 8px;
-  padding: 16px 12px;
-  border: 1px solid #363a45;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-  width: 100%;
-  min-height: 100vh;
-  box-sizing: border-box;
+  border-radius: 12px;
+  padding: 8px;
+  border: 1px solid #444;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  width: 80px;
 }
 
-/* The 6 drag dots sitting cleanly right at the top */
 #drag-handle {
   display: grid;
-  grid-template-columns: repeat(3, 4px);
+  grid-template-columns: repeat(3, 1fr);
   gap: 3px;
-  padding-bottom: 12px;
-  margin-bottom: 12px;
+  padding: 4px 6px 6px;
   cursor: move;
-  opacity: 0.5;
+  opacity: 0.4;
   width: 100%;
-  justify-content: center;
-  border-bottom: 1px solid #2a2e39;
+  justify-items: center;
 }
 
-#drag-handle:hover { 
-  opacity: 1; 
-}
+#drag-handle:hover { opacity: 0.9; }
 
 #drag-handle span {
   width: 3px;
@@ -51,29 +42,27 @@ html {
   border-radius: 50%;
 }
 
-/* This grid container cleanly structures the buttons 2-per-row downward */
-.button-grid {
+#btn-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap: 4px;
   width: 100%;
-  justify-items: center;
 }
 
 .tool-btn {
-  width: 40px;
-  height: 40px;
+  width: 100%;
+  height: 30px;
   background: transparent;
   border: none;
   border-radius: 6px;
   color: #b2b5be;
-  font-size: 15px;
+  font-size: 12px;
   font-weight: 600;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.12s ease;
+  transition: all 0.15s ease;
 }
 
 .tool-btn:hover {
