@@ -8,35 +8,33 @@ body {
 }
 
 #toolbar {
-  display: inline-flex;
+  display: flex;
   flex-direction: column;
   align-items: center;
   background: #1e222d;
   border-radius: 12px;
-  padding: 8px;
+  padding: 10px 8px;
   border: 1px solid #444;
-  width: 90px;
-  position: absolute;
-  left: 8px;
-  top: 8px;
+  width: calc(100% - 16px);
+  box-sizing: border-box;
 }
 
 #drag-handle {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 4px;
-  padding: 2px 6px 8px;
+  gap: 2px;
+  padding: 0 0 8px 0;
   cursor: move;
   opacity: 0.5;
-  width: 100%;
+  width: 36px;
   justify-items: center;
 }
 
 #drag-handle:hover { opacity: 1; }
 
 #drag-handle span {
-  width: 4px;
-  height: 4px;
+  width: 3px;
+  height: 3px;
   background: #b2b5be;
   border-radius: 50%;
 }
@@ -44,17 +42,17 @@ body {
 #btn-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 5px;
+  gap: 6px;
   width: 100%;
 }
 
 .tool-btn {
-  height: 34px;
+  height: 44px;
   background: #2a2e39;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   color: #b2b5be;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   display: flex;
