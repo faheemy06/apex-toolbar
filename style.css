@@ -1,21 +1,23 @@
 body {
-  background: #f0f0f0;
+  background: transparent;
   margin: 0;
   padding: 8px;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   user-select: none;
   overflow: hidden;
+  height: 100vh;
+  box-sizing: border-box;
 }
 
 #toolbar {
   display: flex;
   flex-direction: column;
-  align-items: center;
   background: #1e222d;
   border-radius: 12px;
   padding: 10px 8px;
   border: 1px solid #444;
   width: calc(100% - 16px);
+  height: calc(100% - 16px);
   box-sizing: border-box;
 }
 
@@ -23,10 +25,11 @@ body {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 2px;
-  padding: 0 0 8px 0;
+  padding: 0 0 10px 0;
   cursor: move;
   opacity: 0.5;
   width: 36px;
+  align-self: center;
   justify-items: center;
 }
 
@@ -42,23 +45,26 @@ body {
 #btn-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
+  grid-template-rows: repeat(4, 1fr);
   gap: 6px;
   width: 100%;
+  flex: 1;
 }
 
 .tool-btn {
-  height: 44px;
   background: #2a2e39;
   border: none;
   border-radius: 8px;
   color: #b2b5be;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.15s ease;
+  width: 100%;
+  height: 100%;
 }
 
 .tool-btn:hover {
