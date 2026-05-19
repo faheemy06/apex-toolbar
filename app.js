@@ -29,7 +29,7 @@ function initializeDragEngine() {
         
         document.addEventListener("mousemove", dragMove);
         document.addEventListener("mouseup", dragStop);
-        e.preventDefault(); // Stop accidental text highlights
+        e.preventDefault(); 
     });
 
     function dragMove(e) {
@@ -49,18 +49,68 @@ function initializeDragEngine() {
 }
 
 // ========================================================
-// 3. CORE FINANCE LOGIC
+// 3. CORE FINANCE LOGIC & FULL-SHEET AUDIT X-RAY
 // ========================================================
 function initializeFinanceButtons() {
-    // --- Audit X-Ray (The "Bowtie") ---
-    document.getElementById("btn-audit").onclick = () => runExcelAction(async (range) => {
-        const formulas = range.getSpecialCellsOrNullObject(Excel.SpecialCellType.formulas);
-        const constants = range.getSpecialCellsOrNullObject(Excel.SpecialCellType.constants);
-        await range.context.sync();
+    
+    // --- Automated Full-Sheet Audit X-Ray ---
+    document.getElementById("btn-audit").onclick = async () => {
+        try {
+            await Excel.run(async (context) => {
+                const sheet = context.workbook.worksheets.getActiveWorksheet();
+                const usedRange = sheet.getUsedRange();
+                
+                // Scan for distinct cell architectures across the full sheet
+                const formulas = usedRange.getSpecialCellsOrNullObject(Excel.SpecialCellType.formulas);
+                const constants = usedRange.getSpecialCellsOrNullObject(Excel.SpecialCellType.constants);
+                const errors = usedRange.getSpecialCellsOrNullObject(Excel.SpecialCellType.formulas, Excel.SpecialCellValueType.errors);
+                
+                usedRange.load("cellCount");
+                await context.sync();
 
-        if (!formulas.isNullObject) formulas.format.fill.color = "#cce5ff"; 
-        if (!constants.isNullObject) constants.format.fill.color = "#ffe0b2"; 
-    });
+                let formulaCount = 0;
+                let constantCount = 0;
+                let errorCount = 0;
+
+                // Trace and color-code the models natively
+                if (!formulas.isNullObject) {
+                    formulas.load("cellCount");
+                    formulas.format.fill.color = "#cce5ff"; // Corporate Blue for formulas
+                    await context.sync();
+                    formulaCount = formulas.cellCount;
+                }
+                
+                if (!constants.isNullObject) {
+                    constants.load("cellCount");
+                    constants.format.fill.color = "#ffe0b2"; // Amber for hardcoded figures
+                    await context.sync();
+                    constantCount = constants.cellCount;
+                }
+
+                if (!errors.isNullObject) {
+                    errors.load("cellCount");
+                    errors.format.fill.color = "#ffcdd2"; // Alert Red for broken calculation chains
+                    await context.sync();
+                    errorCount = errors.cellCount;
+                }
+
+                // Display a native audit summary panel report
+                alert(
+                    "📊 EL-TOOLBAR AUDIT SUMMARY\n" +
+                    "-----------------------------------------\n" +
+                    "✅ Total Active Footprint: " + usedRange.cellCount + " cells scanned.\n\n" +
+                    "🔗 Dynamic Formulas Found: " + formulaCount + " (Highlighted Blue)\n" +
+                    "✏️ Hardcoded Values Found: " + constantCount + " (Highlighted Orange)\n" +
+                    "⚠️ Broken Formula Errors: " + errorCount + " (Highlighted Red)\n" +
+                    "-----------------------------------------\n" +
+                    "Scan Complete. Model structural mapping applied."
+                );
+            });
+        } catch (e) {
+            console.log("Audit Error: " + e.message);
+            alert("No active data matrix detected to scan on this sheet.");
+        }
+    };
 
     // --- Professional Formatting ---
     document.getElementById("btn-format").onclick = () => runExcelAction(r => {
@@ -117,7 +167,7 @@ function initializeFinanceButtons() {
 }
 
 // ========================================================
-// 4. CORE RUNTIME PIPELINE
+// 4. CORE RUNTIME PIPELINE (For Selection Actions)
 // ========================================================
 async function runExcelAction(callback) {
     try {
