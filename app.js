@@ -60,48 +60,65 @@ function initializeFinanceButtons() {
                 const sheet = context.workbook.worksheets.getActiveWorksheet();
                 const usedRange = sheet.getUsedRange();
                 
-                // Scan for distinct cell architectures across the full sheet
+                // Scan for distinct cell architectures
                 const formulas = usedRange.getSpecialCellsOrNullObject(Excel.SpecialCellType.formulas);
                 const constants = usedRange.getSpecialCellsOrNullObject(Excel.SpecialCellType.constants);
-                const errors = usedRange.getSpecialCellsOrNullObject(Excel.SpecialCellType.formulas, Excel.SpecialCellValueType.errors);
+                const formulaErrors = usedRange.getSpecialCellsOrNullObject(Excel.SpecialCellType.formulas, Excel.SpecialCellValueType.errors);
                 
-                usedRange.load("cellCount");
+                usedRange.load(["cellCount", "values"]);
                 await context.sync();
 
                 let formulaCount = 0;
                 let constantCount = 0;
                 let errorCount = 0;
 
-                // Trace and color-code the models natively
+                // 1. Color-code dynamic calculation models
                 if (!formulas.isNullObject) {
                     formulas.load("cellCount");
-                    formulas.format.fill.color = "#cce5ff"; // Corporate Blue for formulas
+                    formulas.format.fill.color = "#cce5ff"; // Corporate Blue
                     await context.sync();
                     formulaCount = formulas.cellCount;
                 }
                 
+                // 2. Color-code hardcoded inputs
                 if (!constants.isNullObject) {
                     constants.load("cellCount");
-                    constants.format.fill.color = "#ffe0b2"; // Amber for hardcoded figures
+                    constants.format.fill.color = "#ffe0b2"; // Amber
                     await context.sync();
                     constantCount = constants.cellCount;
                 }
 
-                if (!errors.isNullObject) {
-                    errors.load("cellCount");
-                    errors.format.fill.color = "#ffcdd2"; // Alert Red for broken calculation chains
+                // 3. Color-code true formula calculation breaks
+                if (!formulaErrors.isNullObject) {
+                    formulaErrors.load("cellCount");
+                    formulaErrors.format.fill.color = "#ffcdd2"; // Alert Red
                     await context.sync();
-                    errorCount = errors.cellCount;
+                    errorCount = formulaErrors.cellCount;
                 }
 
-                // Display a native audit summary panel report
+                // 4. Catch text-based broken string flags (e.g., typed or pasted #REF!)
+                const rows = usedRange.values;
+                for (let r = 0; r < rows.length; r++) {
+                    for (let c = 0; c < rows[r].length; c++) {
+                        const cellValue = String(rows[r][c]);
+                        if (cellValue.includes("#REF!") || cellValue.includes("#VALUE!") || cellValue.includes("#DIV/0!")) {
+                            const errorCell = usedRange.getCell(r, c);
+                            errorCell.format.fill.color = "#ffcdd2"; // Overwrite to Alert Red
+                            errorCount++;
+                            if (constantCount > 0) constantCount--; // Correct our metrics count
+                        }
+                    }
+                }
+                await context.sync();
+
+                // Display summary profile
                 alert(
                     "📊 EL-TOOLBAR AUDIT SUMMARY\n" +
                     "-----------------------------------------\n" +
                     "✅ Total Active Footprint: " + usedRange.cellCount + " cells scanned.\n\n" +
                     "🔗 Dynamic Formulas Found: " + formulaCount + " (Highlighted Blue)\n" +
                     "✏️ Hardcoded Values Found: " + constantCount + " (Highlighted Orange)\n" +
-                    "⚠️ Broken Formula Errors: " + errorCount + " (Highlighted Red)\n" +
+                    "⚠️ Broken Errors Caught: " + errorCount + " (Highlighted Red)\n" +
                     "-----------------------------------------\n" +
                     "Scan Complete. Model structural mapping applied."
                 );
@@ -132,13 +149,16 @@ function initializeFinanceButtons() {
         target.format.fill.color = "#e2efda"; 
     });
 
-    // --- Add 20% VAT ---
+    // --- Add 20% VAT (With Smart AutoFit Column Fix) ---
     document.getElementById("btn-vat").onclick = () => runExcelAction(async (r) => {
         r.load("address"); await r.context.sync();
         const target = r.getLastColumn().getOffsetRange(0, 1);
         target.formulas = [["=" + r.address + "*1.2"]];
         target.numberFormat = [["£#,##0.00"]];
         target.format.fill.color = "#fff2cc"; 
+        
+        // Kills the '###' bug by instantly fitting the data width
+        target.getEntireColumn().format.autofitColumns();
     });
 
     // --- Variance Δ% (Smart Direction) ---
